@@ -1,22 +1,13 @@
-# Base image with Java
-FROM openjdk:11-jre-slim
+FROM tomcat:9.0-jre11-openjdk
 
-# Set GeoServer version
-ENV GEOSERVER_VERSION=2.21.2
+# Download GeoServer WAR file directly
+RUN wget https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}.war -O /opt/geoserver.war
 
-# Install GeoServer
-RUN apt-get update && \
-    apt-get install -y wget unzip && \
-    wget -O geoserver-bin.zip https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-bin.zip/download && \
-    unzip geoserver-bin.zip -d /opt && \
-    mv /opt/geoserver-${GEOSERVER_VERSION} /opt/geoserver && \
-    rm geoserver-bin.zip
-
-# Set working directory to GeoServer
-WORKDIR /opt/geoserver/bin
+# Copy GeoServer WAR file
+COPY /opt/geoserver.war /usr/local/tomcat/webapps/geoserver.war
 
 # Expose port 8080
 EXPOSE 8080
 
-# Start GeoServer
-CMD ["sh", "startup.sh"]
+# Start Tomcat
+CMD ["catalina.sh", "run"]
